@@ -1,37 +1,53 @@
-var MetaScript = require("metascript"),
-    path = require("path"),
-    fs = require("fs");
+#!/usr/bin/env node
 
-var rootDir = path.join(__dirname, ".."),
-    srcDir = path.join(rootDir, "src"),
-    distDir = path.join(rootDir, "dist"),
-    pkg = require(path.join(rootDir, "package.json")),
-    filename;
+'use strict';
 
-var scope = {
-    VERSION: pkg.version,
-    ISAAC: false
-};
+const fs = require('fs');
+const path = require('path');
+const mimeScore = require('mime-score');
 
-// Make standard build
-console.log("Building bcrypt.js with scope", JSON.stringify(scope, null, 2));
-fs.writeFileSync(
-    path.join(distDir, "bcrypt.js"),
-    MetaScript.transform(fs.readFileSync(filename = path.join(srcDir, "wrap.js")), filename, scope, srcDir)
-);
+let db = require('mime-db');
+let chalk = require('chalk');
 
-// Make isaac build - see: https://github.com/dcodeIO/bcrypt.js/issues/16
-/* scope.ISAAC = true;
-console.log("Building bcrypt-isaac.js with scope", JSON.stringify(scope, null, 2));
-fs.writeFileSync(
-    path.join(distDir, "bcrypt-isaac.js"),
-    MetaScript.transform(fs.readFileSync(filename = path.join(srcDir, "bcrypt.js")), filename, scope, srcDir)
-); */
+const STANDARD_FACET_SCORE = 900;
 
-// Update bower.json
-scope = { VERSION: pkg.version };
-console.log("Updating bower.json with scope", JSON.stringify(scope, null, 2));
-fs.writeFileSync(
-    path.join(rootDir, "bower.json"),
-    MetaScript.transform(fs.readFileSync(filename = path.join(srcDir, "bower.json")), filename, scope, srcDir)
-);
+const byExtension = {};
+
+// Clear out any conflict extensions in mime-db
+for (let type in db) {
+  let entry = db[type];
+  entry.type = type;
+
+  if (!entry.extensions) continue;
+
+  entry.extensions.forEach(ext => {
+    if (ext in byExtension) {
+      const e0 = entry;
+      const e1 = byExtension[ext];
+      e0.pri = mimeScore(e0.type, e0.source);
+      e1.pri = mimeScore(e1.type, e1.source);
+
+      let drop = e0.pri < e1.pri ? e0 : e1;
+      let keep = e0.pri >= e1.pri ? e0 : e1;
+      drop.extensions = drop.extensions.filter(e => e !== ext);
+
+      console.log(`${ext}: Keeping ${chalk.green(keep.type)} (${keep.pri}), dropping ${chalk.red(drop.type)} (${drop.pri})`);
+    }
+    byExtension[ext] = entry;
+  });
+}
+
+function writeTypesFile(types, path) {
+  fs.writeFileSync(path, JSON.stringify(types));
+}
+
+// Segregate into standard and non-standard types based on facet per
+// https://tools.ietf.org/html/rfc6838#section-3.1
+const types = {};
+
+Object.keys(db).sort().forEach(k => {
+  const entry = db[k];
+  types[entry.type] = entry.extensions;
+});
+
+writeTypesFile(types, path.join(__dirname, '..', 'types.json'));

@@ -1,56 +1,24 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file.
 
-## [4.0.1]
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Changed
+## [v1.1.0](https://github.com/es-shims/math-intrinsics/compare/v1.0.0...v1.1.0) - 2024-12-18
 
-- Fix advisory GHSA-869p-cjfg-cm3x: createSign and createVerify now require
-  that a non empty secret is provided (via opts.secret, opts.privateKey or opts.key)
-  when using HMAC algorithms.
-- Upgrading JWA version to 2.0.1, adressing a compatibility issue for Node >= 25.
+### Commits
 
-## [3.2.3]
+- [New] add `round` [`7cfb044`](https://github.com/es-shims/math-intrinsics/commit/7cfb04460c0fbdf1ca101eecbac3f59d11994130)
+- [Tests] add attw [`e96be8f`](https://github.com/es-shims/math-intrinsics/commit/e96be8fbf58449eafe976446a0470e6ea561ad8d)
+- [Dev Deps] update `@types/tape` [`30d0023`](https://github.com/es-shims/math-intrinsics/commit/30d00234ce8a3fa0094a61cd55d6686eb91e36ec)
 
-### Changed
+## v1.0.0 - 2024-12-11
 
-- Fix advisory GHSA-869p-cjfg-cm3x: createSign and createVerify now require
-  that a non empty secret is provided (via opts.secret, opts.privateKey or opts.key)
-  when using HMAC algorithms.
-- Upgrading JWA version to 1.4.2, adressing a compatibility issue for Node >= 25.
+### Commits
 
-## [3.0.0]
-
-### Changed
-
-- **BREAKING**: `jwt.verify` now requires an `algorithm` parameter, and
-  `jws.createVerify` requires an `algorithm` option. The `"alg"` field
-  signature headers is ignored. This mitigates a critical security flaw
-  in the library which would allow an attacker to generate signatures with
-  arbitrary contents that would be accepted by `jwt.verify`. See
-  https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/
-  for details.
-
-## [2.0.0] - 2015-01-30
-
-### Changed
-
-- **BREAKING**: Default payload encoding changed from `binary` to
-  `utf8`. `utf8` is a is a more sensible default than `binary` because
-  many payloads, as far as I can tell, will contain user-facing
-  strings that could be in any language. (<code>[6b6de48]</code>)
-
-- Code reorganization, thanks [@fearphage]! (<code>[7880050]</code>)
-
-### Added
-
-- Option in all relevant methods for `encoding`. For those few users
-  that might be depending on a `binary` encoding of the messages, this
-  is for them. (<code>[6b6de48]</code>)
-
-[unreleased]: https://github.com/brianloveswords/node-jws/compare/v2.0.0...HEAD
-[2.0.0]: https://github.com/brianloveswords/node-jws/compare/v1.0.1...v2.0.0
-[7880050]: https://github.com/brianloveswords/node-jws/commit/7880050
-[6b6de48]: https://github.com/brianloveswords/node-jws/commit/6b6de48
-[@fearphage]: https://github.com/fearphage
+- Initial implementation, tests, readme, types [`b898caa`](https://github.com/es-shims/math-intrinsics/commit/b898caae94e9994a94a42b8740f7bbcfd0a868fe)
+- Initial commit [`02745b0`](https://github.com/es-shims/math-intrinsics/commit/02745b03a62255af8a332771987b55d127538d9c)
+- [New] add `constants/maxArrayLength`, `mod` [`b978178`](https://github.com/es-shims/math-intrinsics/commit/b978178a57685bd23ed1c7efe2137f3784f5fcc5)
+- npm init [`a39fc57`](https://github.com/es-shims/math-intrinsics/commit/a39fc57e5639a645d0bd52a0dc56202480223be2)
+- Only apps should have lockfiles [`9451580`](https://github.com/es-shims/math-intrinsics/commit/94515800fb34db4f3cc7e99290042d45609ac7bd)
