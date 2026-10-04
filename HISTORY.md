@@ -1,29 +1,83 @@
-1.0.5 / 2023-01-29
+1.8.1 / 2017-09-12
 ==================
 
-  * perf: skip value escaping when unnecessary
+  * perf: replace regular expression with substring
 
-1.0.4 / 2017-09-11
+1.8.0 / 2017-02-18
 ==================
 
-  * perf: skip parameter parsing when no parameters
+  * Use SHA1 instead of MD5 for ETag hashing
+    - Improves performance for larger entities
+    - Works with FIPS 140-2 OpenSSL configuration
 
-1.0.3 / 2017-09-10
+1.7.0 / 2015-06-08
 ==================
 
-  * perf: remove argument reassignment
+  * Always include entity length in ETags for hash length extensions
+  * Generate non-Stats ETags using MD5 only (no longer CRC32)
+  * Improve stat performance by removing hashing
+  * Remove base64 padding in ETags to shorten
+  * Use MD5 instead of MD4 in weak ETags over 1KB
 
-1.0.2 / 2016-05-09
+1.6.0 / 2015-05-10
 ==================
 
-  * perf: enable strict mode
+  * Improve support for JXcore
+  * Remove requirement of `atime` in the stats object
+  * Support "fake" stats objects in environments without `fs`
 
-1.0.1 / 2015-02-13
+1.5.1 / 2014-11-19
 ==================
 
-  * Improve missing `Content-Type` header error message
+  * deps: crc@3.2.1
+    - Minor fixes
 
-1.0.0 / 2015-02-01
+1.5.0 / 2014-10-14
 ==================
 
-  * Initial implementation, derived from `media-typer@0.3.0`
+  * Improve string performance
+  * Slightly improve speed for weak ETags over 1KB
+
+1.4.0 / 2014-09-21
+==================
+
+  * Support "fake" stats objects
+  * Support Node.js 0.6
+
+1.3.1 / 2014-09-14
+==================
+
+  * Use the (new and improved) `crc` for crc32
+
+1.3.0 / 2014-08-29
+==================
+
+  * Default strings to strong ETags
+  * Improve speed for weak ETags over 1KB
+
+1.2.1 / 2014-08-29
+==================
+
+  * Use the (much faster) `buffer-crc32` for crc32
+
+1.2.0 / 2014-08-24
+==================
+
+  * Add support for file stat objects
+
+1.1.0 / 2014-08-24
+==================
+
+  * Add fast-path for empty entity
+  * Add weak ETag generation
+  * Shrink size of generated ETags
+
+1.0.1 / 2014-08-24
+==================
+
+  * Fix behavior of string containing Unicode
+
+1.0.0 / 2014-05-18
+==================
+
+  * Initial release

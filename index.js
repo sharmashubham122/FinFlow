@@ -1,56 +1,131 @@
-'use strict';
+/*!
+ * etag
+ * Copyright(c) 2014-2016 Douglas Christopher Wilson
+ * MIT Licensed
+ */
 
-var $defineProperty = require('../');
+'use strict'
 
-var test = require('tape');
-var gOPD = require('gopd');
+/**
+ * Module exports.
+ * @public
+ */
 
-test('defineProperty: supported', { skip: !$defineProperty }, function (t) {
-	t.plan(4);
+module.exports = etag
 
-	t.equal(typeof $defineProperty, 'function', 'defineProperty is supported');
-	if ($defineProperty && gOPD) { // this `if` check is just to shut TS up
-		/** @type {{ a: number, b?: number, c?: number }} */
-		var o = { a: 1 };
+/**
+ * Module dependencies.
+ * @private
+ */
 
-		$defineProperty(o, 'b', { enumerable: true, value: 2 });
-		t.deepEqual(
-			gOPD(o, 'b'),
-			{
-				configurable: false,
-				enumerable: true,
-				value: 2,
-				writable: false
-			},
-			'property descriptor is as expected'
-		);
+var crypto = require('crypto')
+var Stats = require('fs').Stats
 
-		$defineProperty(o, 'c', { enumerable: false, value: 3, writable: true });
-		t.deepEqual(
-			gOPD(o, 'c'),
-			{
-				configurable: false,
-				enumerable: false,
-				value: 3,
-				writable: true
-			},
-			'property descriptor is as expected'
-		);
-	}
+/**
+ * Module variables.
+ * @private
+ */
 
-	t.equal($defineProperty, Object.defineProperty, 'defineProperty is Object.defineProperty');
+var toString = Object.prototype.toString
 
-	t.end();
-});
+/**
+ * Generate an entity tag.
+ *
+ * @param {Buffer|string} entity
+ * @return {string}
+ * @private
+ */
 
-test('defineProperty: not supported', { skip: !!$defineProperty }, function (t) {
-	t.notOk($defineProperty, 'defineProperty is not supported');
+function entitytag (entity) {
+  if (entity.length === 0) {
+    // fast-path empty
+    return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"'
+  }
 
-	t.match(
-		typeof $defineProperty,
-		/^(?:undefined|boolean)$/,
-		'`typeof defineProperty` is `undefined` or `boolean`'
-	);
+  // compute hash of entity
+  var hash = crypto
+    .createHash('sha1')
+    .update(entity, 'utf8')
+    .digest('base64')
+    .substring(0, 27)
 
-	t.end();
-});
+  // compute length of entity
+  var len = typeof entity === 'string'
+    ? Buffer.byteLength(entity, 'utf8')
+    : entity.length
+
+  return '"' + len.toString(16) + '-' + hash + '"'
+}
+
+/**
+ * Create a simple ETag.
+ *
+ * @param {string|Buffer|Stats} entity
+ * @param {object} [options]
+ * @param {boolean} [options.weak]
+ * @return {String}
+ * @public
+ */
+
+function etag (entity, options) {
+  if (entity == null) {
+    throw new TypeError('argument entity is required')
+  }
+
+  // support fs.Stats object
+  var isStats = isstats(entity)
+  var weak = options && typeof options.weak === 'boolean'
+    ? options.weak
+    : isStats
+
+  // validate argument
+  if (!isStats && typeof entity !== 'string' && !Buffer.isBuffer(entity)) {
+    throw new TypeError('argument entity must be string, Buffer, or fs.Stats')
+  }
+
+  // generate entity tag
+  var tag = isStats
+    ? stattag(entity)
+    : entitytag(entity)
+
+  return weak
+    ? 'W/' + tag
+    : tag
+}
+
+/**
+ * Determine if object is a Stats object.
+ *
+ * @param {object} obj
+ * @return {boolean}
+ * @api private
+ */
+
+function isstats (obj) {
+  // genuine fs.Stats
+  if (typeof Stats === 'function' && obj instanceof Stats) {
+    return true
+  }
+
+  // quack quack
+  return obj && typeof obj === 'object' &&
+    'ctime' in obj && toString.call(obj.ctime) === '[object Date]' &&
+    'mtime' in obj && toString.call(obj.mtime) === '[object Date]' &&
+    'ino' in obj && typeof obj.ino === 'number' &&
+    'size' in obj && typeof obj.size === 'number'
+}
+
+/**
+ * Generate a tag for a stat.
+ *
+ * @param {object} stat
+ * @return {string}
+ * @private
+ */
+
+function stattag (stat) {
+  var mtime = stat.mtime.getTime().toString(16)
+  var size = stat.size.toString(16)
+
+  return '"' + size + '-' + mtime + '"'
+}
