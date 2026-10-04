@@ -1,3 +1,3 @@
-declare const Object: ObjectConstructor;
+declare function hasNativeSymbols(): boolean;
 
-export = Object;
+export = hasNativeSymbols;
