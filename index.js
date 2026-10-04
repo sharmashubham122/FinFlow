@@ -1,114 +1,162 @@
-'use strict';
+/**
+ * Helpers.
+ */
 
-var test = require('tape');
+var s = 1000;
+var m = s * 60;
+var h = m * 60;
+var d = h * 24;
+var w = d * 7;
+var y = d * 365.25;
 
-var getSideChannelMap = require('../');
+/**
+ * Parse or format the given `val`.
+ *
+ * Options:
+ *
+ *  - `long` verbose formatting [false]
+ *
+ * @param {String|Number} val
+ * @param {Object} [options]
+ * @throws {Error} throw an error if val is not a non-empty string or a number
+ * @return {String|Number}
+ * @api public
+ */
 
-test('getSideChannelMap', { skip: typeof Map !== 'function' }, function (t) {
-	var getSideChannel = getSideChannelMap || function () {
-		throw new EvalError('should never happen');
-	};
+module.exports = function (val, options) {
+  options = options || {};
+  var type = typeof val;
+  if (type === 'string' && val.length > 0) {
+    return parse(val);
+  } else if (type === 'number' && isFinite(val)) {
+    return options.long ? fmtLong(val) : fmtShort(val);
+  }
+  throw new Error(
+    'val is not a non-empty string or a valid number. val=' +
+      JSON.stringify(val)
+  );
+};
 
-	t.test('export', function (st) {
-		st.equal(typeof getSideChannel, 'function', 'is a function');
+/**
+ * Parse the given `str` and return milliseconds.
+ *
+ * @param {String} str
+ * @return {Number}
+ * @api private
+ */
 
-		st.equal(getSideChannel.length, 0, 'takes no arguments');
+function parse(str) {
+  str = String(str);
+  if (str.length > 100) {
+    return;
+  }
+  var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
+    str
+  );
+  if (!match) {
+    return;
+  }
+  var n = parseFloat(match[1]);
+  var type = (match[2] || 'ms').toLowerCase();
+  switch (type) {
+    case 'years':
+    case 'year':
+    case 'yrs':
+    case 'yr':
+    case 'y':
+      return n * y;
+    case 'weeks':
+    case 'week':
+    case 'w':
+      return n * w;
+    case 'days':
+    case 'day':
+    case 'd':
+      return n * d;
+    case 'hours':
+    case 'hour':
+    case 'hrs':
+    case 'hr':
+    case 'h':
+      return n * h;
+    case 'minutes':
+    case 'minute':
+    case 'mins':
+    case 'min':
+    case 'm':
+      return n * m;
+    case 'seconds':
+    case 'second':
+    case 'secs':
+    case 'sec':
+    case 's':
+      return n * s;
+    case 'milliseconds':
+    case 'millisecond':
+    case 'msecs':
+    case 'msec':
+    case 'ms':
+      return n;
+    default:
+      return undefined;
+  }
+}
 
-		var channel = getSideChannel();
-		st.ok(channel, 'is truthy');
-		st.equal(typeof channel, 'object', 'is an object');
-		st.end();
-	});
+/**
+ * Short format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
 
-	t.test('assert', function (st) {
-		var channel = getSideChannel();
-		st['throws'](
-			function () { channel.assert({}); },
-			TypeError,
-			'nonexistent value throws'
-		);
+function fmtShort(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return Math.round(ms / d) + 'd';
+  }
+  if (msAbs >= h) {
+    return Math.round(ms / h) + 'h';
+  }
+  if (msAbs >= m) {
+    return Math.round(ms / m) + 'm';
+  }
+  if (msAbs >= s) {
+    return Math.round(ms / s) + 's';
+  }
+  return ms + 'ms';
+}
 
-		var o = {};
-		channel.set(o, 'data');
-		st.doesNotThrow(function () { channel.assert(o); }, 'existent value noops');
+/**
+ * Long format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
 
-		st.end();
-	});
+function fmtLong(ms) {
+  var msAbs = Math.abs(ms);
+  if (msAbs >= d) {
+    return plural(ms, msAbs, d, 'day');
+  }
+  if (msAbs >= h) {
+    return plural(ms, msAbs, h, 'hour');
+  }
+  if (msAbs >= m) {
+    return plural(ms, msAbs, m, 'minute');
+  }
+  if (msAbs >= s) {
+    return plural(ms, msAbs, s, 'second');
+  }
+  return ms + ' ms';
+}
 
-	t.test('has', function (st) {
-		var channel = getSideChannel();
-		/** @type {unknown[]} */ var o = [];
+/**
+ * Pluralization helper.
+ */
 
-		st.equal(channel.has(o), false, 'nonexistent value yields false');
-
-		channel.set(o, 'foo');
-		st.equal(channel.has(o), true, 'existent value yields true');
-
-		st.equal(channel.has('abc'), false, 'non object value non existent yields false');
-
-		channel.set('abc', 'foo');
-		st.equal(channel.has('abc'), true, 'non object value that exists yields true');
-
-		st.end();
-	});
-
-	t.test('get', function (st) {
-		var channel = getSideChannel();
-		var o = {};
-		st.equal(channel.get(o), undefined, 'nonexistent value yields undefined');
-
-		var data = {};
-		channel.set(o, data);
-		st.equal(channel.get(o), data, '"get" yields data set by "set"');
-
-		st.end();
-	});
-
-	t.test('set', function (st) {
-		var channel = getSideChannel();
-		var o = function () {};
-		st.equal(channel.get(o), undefined, 'value not set');
-
-		channel.set(o, 42);
-		st.equal(channel.get(o), 42, 'value was set');
-
-		channel.set(o, Infinity);
-		st.equal(channel.get(o), Infinity, 'value was set again');
-
-		var o2 = {};
-		channel.set(o2, 17);
-		st.equal(channel.get(o), Infinity, 'o is not modified');
-		st.equal(channel.get(o2), 17, 'o2 is set');
-
-		channel.set(o, 14);
-		st.equal(channel.get(o), 14, 'o is modified');
-		st.equal(channel.get(o2), 17, 'o2 is not modified');
-
-		st.end();
-	});
-
-	t.test('delete', function (st) {
-		var channel = getSideChannel();
-		var o = {};
-		st.equal(channel['delete']({}), false, 'nonexistent value yields false');
-
-		channel.set(o, 42);
-		st.equal(channel.has(o), true, 'value is set');
-
-		st.equal(channel['delete']({}), false, 'nonexistent value still yields false');
-
-		st.equal(channel['delete'](o), true, 'deleted value yields true');
-
-		st.equal(channel.has(o), false, 'value is no longer set');
-
-		st.end();
-	});
-
-	t.end();
-});
-
-test('getSideChannelMap, no Maps', { skip: typeof Map === 'function' }, function (t) {
-	t.equal(getSideChannelMap, false, 'is false');
-
-	t.end();
-});
+function plural(ms, msAbs, n, name) {
+  var isPlural = msAbs >= n * 1.5;
+  return Math.round(ms / n) + ' ' + name + (isPlural ? 's' : '');
+}

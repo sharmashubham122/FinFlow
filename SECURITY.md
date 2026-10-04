@@ -1,11 +1,24 @@
-# Security
+# Security Policies and Procedures
 
-Please file a private vulnerability report via GitHub, email [@ljharb](https://github.com/ljharb), or see https://tidelift.com/security if you have a potential security vulnerability to report.
+## Reporting a Bug
 
-## Incident Response Plan
+The `send` team and community take all security bugs seriously. Thank you
+for improving the security of Express. We appreciate your efforts and
+responsible disclosure and will make every effort to acknowledge your
+contributions.
 
-Please see our [Incident Response Plan](https://github.com/ljharb/.github/blob/main/INCIDENT_RESPONSE_PLAN.md).
+Report security bugs by emailing the current owner(s) of `send`. This information
+can be found in the npm registry using the command `npm owner ls send`.
+If unsure or unable to get the information from the above, open an issue
+in the [project issue tracker](https://github.com/pillarjs/send/issues)
+asking for the current contact information.
 
-## Threat Model
+To ensure the timely response to your report, please ensure that the entirety
+of the report is contained within the email body and not solely behind a web
+link or an attachment.
 
-Please see [THREAT_MODEL.md](./THREAT_MODEL.md).
+At least one owner will acknowledge your email within 48 hours, and will send a
+more detailed response within 48 hours indicating the next steps in handling
+your report. After the initial reply to your report, the owners will
+endeavor to keep you informed of the progress towards a fix and full
+announcement, and may ask for additional information or guidance.
