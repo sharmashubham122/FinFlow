@@ -1,17 +1,11 @@
 {
-	"root": true,
-
-	"extends": "@ljharb",
-
-	"rules": {
-		"func-name-matching": 0,
-		"id-length": 0,
-		"new-cap": [2, {
-			"capIsNewExceptions": [
-				"GetIntrinsic",
-			],
-		}],
-		"no-extra-parens": 0,
-		"no-magic-numbers": 0,
-	},
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "rules": {
+    "no-console": 0,
+    "no-empty": [1, { "allowEmptyCatch": true }]
+  },
+  "extends": "eslint:recommended"
 }
