@@ -1,50 +1,203 @@
-# math-intrinsics <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
+# negotiator
 
-[![github actions][actions-image]][actions-url]
-[![coverage][codecov-image]][codecov-url]
-[![License][license-image]][license-url]
-[![Downloads][downloads-image]][downloads-url]
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Node.js Version][node-version-image]][node-version-url]
+[![Build Status][github-actions-ci-image]][github-actions-ci-url]
+[![Test Coverage][coveralls-image]][coveralls-url]
 
-[![npm badge][npm-badge-png]][package-url]
+An HTTP content negotiator for Node.js
 
-ES Math-related intrinsics and helpers, robustly cached.
+## Installation
 
- - `abs`
- - `floor`
- - `isFinite`
- - `isInteger`
- - `isNaN`
- - `isNegativeZero`
- - `max`
- - `min`
- - `mod`
- - `pow`
- - `round`
- - `sign`
- - `constants/maxArrayLength`
- - `constants/maxSafeInteger`
- - `constants/maxValue`
+```sh
+$ npm install negotiator
+```
 
+## API
 
-## Tests
-Simply clone the repo, `npm install`, and run `npm test`
+```js
+var Negotiator = require('negotiator')
+```
 
-## Security
+### Accept Negotiation
 
-Please email [@ljharb](https://github.com/ljharb) or see https://tidelift.com/security if you have a potential security vulnerability to report.
+```js
+availableMediaTypes = ['text/html', 'text/plain', 'application/json']
 
-[package-url]: https://npmjs.org/package/math-intrinsics
-[npm-version-svg]: https://versionbadg.es/es-shims/math-intrinsics.svg
-[deps-svg]: https://david-dm.org/es-shims/math-intrinsics.svg
-[deps-url]: https://david-dm.org/es-shims/math-intrinsics
-[dev-deps-svg]: https://david-dm.org/es-shims/math-intrinsics/dev-status.svg
-[dev-deps-url]: https://david-dm.org/es-shims/math-intrinsics#info=devDependencies
-[npm-badge-png]: https://nodei.co/npm/math-intrinsics.png?downloads=true&stars=true
-[license-image]: https://img.shields.io/npm/l/math-intrinsics.svg
-[license-url]: LICENSE
-[downloads-image]: https://img.shields.io/npm/dm/es-object.svg
-[downloads-url]: https://npm-stat.com/charts.html?package=math-intrinsics
-[codecov-image]: https://codecov.io/gh/es-shims/math-intrinsics/branch/main/graphs/badge.svg
-[codecov-url]: https://app.codecov.io/gh/es-shims/math-intrinsics/
-[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/es-shims/math-intrinsics
-[actions-url]: https://github.com/es-shims/math-intrinsics/actions
+// The negotiator constructor receives a request object
+negotiator = new Negotiator(request)
+
+// Let's say Accept header is 'text/html, application/*;q=0.2, image/jpeg;q=0.8'
+
+negotiator.mediaTypes()
+// -> ['text/html', 'image/jpeg', 'application/*']
+
+negotiator.mediaTypes(availableMediaTypes)
+// -> ['text/html', 'application/json']
+
+negotiator.mediaType(availableMediaTypes)
+// -> 'text/html'
+```
+
+You can check a working example at `examples/accept.js`.
+
+#### Methods
+
+##### mediaType()
+
+Returns the most preferred media type from the client.
+
+##### mediaType(availableMediaType)
+
+Returns the most preferred media type from a list of available media types.
+
+##### mediaTypes()
+
+Returns an array of preferred media types ordered by the client preference.
+
+##### mediaTypes(availableMediaTypes)
+
+Returns an array of preferred media types ordered by priority from a list of
+available media types.
+
+### Accept-Language Negotiation
+
+```js
+negotiator = new Negotiator(request)
+
+availableLanguages = ['en', 'es', 'fr']
+
+// Let's say Accept-Language header is 'en;q=0.8, es, pt'
+
+negotiator.languages()
+// -> ['es', 'pt', 'en']
+
+negotiator.languages(availableLanguages)
+// -> ['es', 'en']
+
+language = negotiator.language(availableLanguages)
+// -> 'es'
+```
+
+You can check a working example at `examples/language.js`.
+
+#### Methods
+
+##### language()
+
+Returns the most preferred language from the client.
+
+##### language(availableLanguages)
+
+Returns the most preferred language from a list of available languages.
+
+##### languages()
+
+Returns an array of preferred languages ordered by the client preference.
+
+##### languages(availableLanguages)
+
+Returns an array of preferred languages ordered by priority from a list of
+available languages.
+
+### Accept-Charset Negotiation
+
+```js
+availableCharsets = ['utf-8', 'iso-8859-1', 'iso-8859-5']
+
+negotiator = new Negotiator(request)
+
+// Let's say Accept-Charset header is 'utf-8, iso-8859-1;q=0.8, utf-7;q=0.2'
+
+negotiator.charsets()
+// -> ['utf-8', 'iso-8859-1', 'utf-7']
+
+negotiator.charsets(availableCharsets)
+// -> ['utf-8', 'iso-8859-1']
+
+negotiator.charset(availableCharsets)
+// -> 'utf-8'
+```
+
+You can check a working example at `examples/charset.js`.
+
+#### Methods
+
+##### charset()
+
+Returns the most preferred charset from the client.
+
+##### charset(availableCharsets)
+
+Returns the most preferred charset from a list of available charsets.
+
+##### charsets()
+
+Returns an array of preferred charsets ordered by the client preference.
+
+##### charsets(availableCharsets)
+
+Returns an array of preferred charsets ordered by priority from a list of
+available charsets.
+
+### Accept-Encoding Negotiation
+
+```js
+availableEncodings = ['identity', 'gzip']
+
+negotiator = new Negotiator(request)
+
+// Let's say Accept-Encoding header is 'gzip, compress;q=0.2, identity;q=0.5'
+
+negotiator.encodings()
+// -> ['gzip', 'identity', 'compress']
+
+negotiator.encodings(availableEncodings)
+// -> ['gzip', 'identity']
+
+negotiator.encoding(availableEncodings)
+// -> 'gzip'
+```
+
+You can check a working example at `examples/encoding.js`.
+
+#### Methods
+
+##### encoding()
+
+Returns the most preferred encoding from the client.
+
+##### encoding(availableEncodings)
+
+Returns the most preferred encoding from a list of available encodings.
+
+##### encodings()
+
+Returns an array of preferred encodings ordered by the client preference.
+
+##### encodings(availableEncodings)
+
+Returns an array of preferred encodings ordered by priority from a list of
+available encodings.
+
+## See Also
+
+The [accepts](https://npmjs.org/package/accepts#readme) module builds on
+this module and provides an alternative interface, mime type validation,
+and more.
+
+## License
+
+[MIT](LICENSE)
+
+[npm-image]: https://img.shields.io/npm/v/negotiator.svg
+[npm-url]: https://npmjs.org/package/negotiator
+[node-version-image]: https://img.shields.io/node/v/negotiator.svg
+[node-version-url]: https://nodejs.org/en/download/
+[coveralls-image]: https://img.shields.io/coveralls/jshttp/negotiator/master.svg
+[coveralls-url]: https://coveralls.io/r/jshttp/negotiator?branch=master
+[downloads-image]: https://img.shields.io/npm/dm/negotiator.svg
+[downloads-url]: https://npmjs.org/package/negotiator
+[github-actions-ci-image]: https://img.shields.io/github/workflow/status/jshttp/negotiator/ci/master?label=ci
+[github-actions-ci-url]: https://github.com/jshttp/negotiator/actions/workflows/ci.yml
