@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>FinFlow Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem('ff_theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+<style>
+  :root{--bg:#f0f4ff;--surface:#fff;--surface2:#e8edff;--border:#d1d9f5;--accent:#4f46e5;--accent-hover:#4338ca;--accent2:#0ea5e9;--accent3:#f59e0b;--danger:#ef4444;--ok:#059669;--text:#1e1b4b;--text-muted:#6366a3}
+  [data-theme="dark"]{--bg:#0a0f1e;--surface:#111827;--surface2:#1a2235;--border:#1f2d45;--accent:#818cf8;--accent-hover:#6366f1;--accent2:#38bdf8;--accent3:#fbbf24;--danger:#f87171;--ok:#34d399;--text:#e8f0fe;--text-muted:#8a9bc0}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent}
+  button,input,select,textarea{font-family:inherit;font-size:14px}
+  .layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 0;display:flex;flex-direction:column;position:-webkit-sticky;position:sticky;top:0;height:100vh;height:100dvh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px;padding:0 20px;margin-bottom:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:20px}
+  .brand .ic{width:34px;height:34px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px}
+  .brand em{color:var(--accent);font-style:normal}
+  .badge-admin{margin:0 20px 22px;display:inline-block;font-size:10px;letter-spacing:1.5px;font-weight:700;color:var(--accent);background:var(--surface2);padding:3px 8px;border-radius:6px;width:max-content}
+  .nav{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 20px;background:transparent;border:0;border-left:3px solid transparent;color:var(--text-muted);cursor:pointer;-webkit-appearance:none;appearance:none;touch-action:manipulation}
+  .nav:hover{color:var(--text);background:var(--surface2)}
+  .nav.active{color:var(--accent);background:var(--surface2);border-left-color:var(--accent)}
+  .nav .i{font-size:17px;width:22px;text-align:center}
+  .side-foot{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+  .main{padding:32px;min-width:0}
+  h1{font-family:'Syne',sans-serif;font-size:26px;margin-bottom:4px}
+  .sub{color:var(--text-muted);font-size:14px;margin-bottom:24px}
+  .section{display:none}.section.active{display:block}
+  .grid{display:grid;gap:16px;margin-bottom:20px}
+  .g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1fr 1fr}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;min-width:0}
+  .card h3{font-family:'Syne',sans-serif;font-size:15px;margin-bottom:14px}
+  .stat .l{font-size:12px;color:var(--text-muted);margin-bottom:6px}
+  .stat .v{font-family:'Syne',sans-serif;font-size:26px;font-weight:700}
+  .stat .s{font-size:12px;color:var(--text-muted);margin-top:4px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:9px;border:1px solid transparent;cursor:pointer;font-weight:500;background:var(--accent);color:#fff;-webkit-appearance:none;appearance:none;touch-action:manipulation;text-decoration:none}
+  .btn:hover{background:var(--accent-hover)}
+  .btn.ghost{background:transparent;color:var(--text-muted);border-color:var(--border)}
+  .btn.ghost:hover{color:var(--accent);border-color:var(--accent)}
+  .btn.danger{background:var(--danger)}
+  .btn.sm{padding:6px 11px;font-size:12px}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  label.f{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin:0 0 6px}
+  .inp{width:100%;padding:11px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);outline:none}
+  .inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+  .fg{margin-bottom:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pw{position:relative}.pw .inp{padding-right:46px}
+  .pw button{position:absolute;right:5px;top:50%;margin-top:-17px;width:34px;height:34px;border:0;background:transparent;color:var(--text-muted);cursor:pointer;border-radius:8px;font-size:16px}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:680px}
+  th{text-align:left;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+  td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  .muted{color:var(--text-muted)}.small{font-size:12px}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+  .pill.ok{background:rgba(5,150,105,.15);color:var(--ok)}.pill.bad{background:rgba(239,68,68,.15);color:var(--danger)}
+  .inc{color:var(--ok)}.exp{color:var(--danger)}
+  .bars{display:flex;align-items:flex-end;gap:6px;height:120px}
+  .bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:10px;color:var(--text-muted)}
+  .bar i{display:block;width:100%;max-width:26px;background:var(--accent);border-radius:5px 5px 0 0;min-height:3px}
+  .switch{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .switch:last-of-type{border-bottom:0}
+  .switch input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent);flex-shrink:0}
+  .switch b{display:block;font-size:14px}.switch span{font-size:12px;color:var(--text-muted)}
+  .pager{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:13px;color:var(--text-muted);flex-wrap:wrap;gap:8px}
+  .modal-bg{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(10,15,30,.6);z-index:900;display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:760px;margin:auto}
+  .modal.narrow{max-width:440px}
+  .modal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px}
+  .modal-h h2{font-family:'Syne',sans-serif;font-size:19px;word-break:break-word}
+  .x{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;flex-shrink:0}
+  .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+  .toast{padding:12px 16px;border-radius:10px;background:var(--surface);border:1px solid var(--border);box-shadow:0 6px 24px rgba(0,0,0,.2);font-size:14px;max-width:320px}
+  .toast.error{border-color:var(--danger)}.toast.success{border-color:var(--ok)}
+  .theme{position:fixed;top:14px;right:14px;z-index:600;width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:17px}
+  .mobile-bar{display:none}.overlay{display:none}
+  .menu-btn{width:40px;height:40px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:20px;flex-shrink:0}
+  .dclose{display:none}
+  hr.sp{border:0;border-top:1px solid var(--border);margin:18px 0}
+  .empty{text-align:center;padding:28px;color:var(--text-muted);font-size:14px}
+  .sec-h{display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px;gap:10px;flex-wrap:wrap}
+  .sec-h h3{font-family:'Syne',sans-serif;font-size:15px}
+  @media(max-width:900px){
+    .layout{grid-template-columns:1fr}
+    .mobile-bar{display:flex;align-items:center;gap:12px;position:-webkit-sticky;position:sticky;top:0;z-index:300;padding:10px 64px 10px 14px;background:var(--surface);border-bottom:1px solid var(--border)}
+    .mobile-bar .t{font-family:'Syne',sans-serif;font-weight:800;font-size:18px}
+    .sidebar{position:fixed;top:0;left:0;bottom:0;width:270px;max-width:82%;height:100%;z-index:450;-webkit-transform:translateX(-105%);transform:translateX(-105%);transition:transform .25s ease;visibility:hidden}
+    .sidebar.open{-webkit-transform:translateX(0);transform:translateX(0);visibility:visible;box-shadow:8px 0 30px rgba(0,0,0,.25)}
+    .overlay{display:block;position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(10,15,30,.55);z-index:440;opacity:0;pointer-events:none;transition:opacity .25s}
+    .overlay.open{opacity:1;pointer-events:auto}
+    .dclose{display:flex;align-items:center;justify-content:center;margin-left:auto;width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer}
+    body.menu-open{overflow:hidden}
+    .main{padding:18px 14px}
+    .g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}
+    h1{font-size:22px}
+  }
+</style>
+</head>
+<body>
+<button class="theme" id="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+
+<header class="mobile-bar">
+  <button class="menu-btn" id="menu-btn" onclick="toggleMenu()" aria-label="Open menu" aria-expanded="false">☰</button>
+  <div class="t">FinFlow Admin</div>
+</header>
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="ic">💸</div><div>Fin<em>Flow</em></div><button class="dclose" onclick="closeMenu()" aria-label="Close menu">✕</button></div>
+    <div class="badge-admin">ADMIN PANEL</div>
+    <button class="nav active" data-s="dashboard" onclick="show('dashboard')"><span class="i">📊</span> Dashboard</button>
+    <button class="nav" data-s="users" onclick="show('users')"><span class="i">👥</span> Users</button>
+    <button class="nav" data-s="website" onclick="show('website')"><span class="i">🌐</span> Website</button>
+    <button class="nav" data-s="data" onclick="show('data')"><span class="i">💾</span> Data &amp; Backup</button>
+    <button class="nav" data-s="security" onclick="show('security')"><span class="i">🔐</span> Security</button>
+    <div class="side-foot">
+      <a class="btn ghost sm" href="/" target="_blank" rel="noopener">↗ Open website</a>
+      <button class="btn ghost sm" onclick="logout()">⎋ Log out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- DASHBOARD -->
+    <div class="section active" id="s-dashboard">
+      <h1>Dashboard</h1><div class="sub">Live overview of your website</div>
+      <div class="grid g4" id="stat-cards"></div>
+      <div class="grid g2">
+        <div class="card"><h3>👤 New sign-ups (last 14 days)</h3><div class="bars" id="signup-bars"></div></div>
+        <div class="card"><h3>🌐 Website status</h3><div id="status-box"></div></div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="section" id="s-users">
+      <h1>Users</h1><div class="sub">View, edit, suspend or delete accounts and their data</div>
+      <div class="card">
+        <div class="row" style="margin-bottom:14px">
+          <input class="inp" id="user-q" placeholder="Search by name or email…" style="flex:1;min-width:180px" oninput="debounceSearch()">
+          <button class="btn" onclick="openAddUser()">＋ Add user</button>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>User</th><th>Income/mo</th><th>Txns</th><th>Goals</th><th>Joined</th><th>Last login</th><th>Status</th><th></th></tr></thead>
+          <tbody id="users-body"></tbody>
+        </table></div>
+        <div class="pager"><span id="users-info"></span><span class="row"><button class="btn ghost sm" id="prev-btn" onclick="gotoPage(-1)">← Prev</button><button class="btn ghost sm" id="next-btn" onclick="gotoPage(1)">Next →</button></span></div>
+      </div>
+    </div>
+
+    <!-- WEBSITE -->
+    <div class="section" id="s-website">
+      <h1>Website</h1><div class="sub">Control how your public website behaves</div>
+      <div class="card" style="max-width:720px">
+        <label class="switch"><input type="checkbox" id="set-reg"><div><b>Allow new registrations</b><span>Turn off to stop new people from creating accounts.</span></div></label>
+        <label class="switch"><input type="checkbox" id="set-maint"><div><b>Maintenance mode</b><span>Users can't log in or use the site. You (admin) can still log in.</span></div></label>
+        <div class="fg" style="margin-top:14px"><label class="f">Maintenance message</label><input class="inp" id="set-maint-msg" maxlength="300"></div>
+        <hr class="sp">
+        <label class="switch"><input type="checkbox" id="set-ann-on"><div><b>Show announcement banner</b><span>A banner appears at the top of the website for everyone.</span></div></label>
+        <div class="fg" style="margin-top:14px"><label class="f">Announcement text</label><input class="inp" id="set-ann-text" maxlength="300" placeholder="e.g. New feature: savings goals are here!"></div>
+        <div class="fg"><label class="f">Banner colour</label>
+          <select class="inp" id="set-ann-type"><option value="info">Blue (info)</option><option value="warning">Orange (warning)</option><option value="success">Green (good news)</option></select></div>
+        <button class="btn" onclick="saveSettings()">Save website settings</button>
+      </div>
+    </div>
+
+    <!-- DATA -->
+    <div class="section" id="s-data">
+      <h1>Data &amp; Backup</h1><div class="sub">Download your data safely</div>
+      <div class="grid g2">
+        <div class="card"><h3>💾 Full database backup</h3><p class="muted small" style="margin-bottom:14px">Downloads the complete SQLite database file. Keep it somewhere safe.</p><a class="btn" href="/api/admin/backup">Download backup (.db)</a></div>
+        <div class="card"><h3>📄 Export to Excel / CSV</h3><p class="muted small" style="margin-bottom:14px">Spreadsheet files you can open in Excel or Google Sheets.</p><div class="row"><a class="btn ghost" href="/api/admin/export/users.csv">Users CSV</a><a class="btn ghost" href="/api/admin/export/transactions.csv">Transactions CSV</a></div></div>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="section" id="s-security">
+      <h1>Security</h1><div class="sub">Change your admin ID and password</div>
+      <div class="card" style="max-width:460px">
+        <div class="fg"><label class="f">Current password</label><div class="pw"><input class="inp" id="acc-cur" type="password" autocomplete="current-password"><button type="button" onclick="tpw('acc-cur',this)" aria-label="Show/hide">👁</button></div></div>
+        <div class="fg"><label class="f">New admin ID <span class="muted">(leave blank to keep)</span></label><input class="inp" id="acc-id" autocomplete="off" autocapitalize="none"></div>
+        <div class="fg"><label class="f">New password <span class="muted">(leave blank to keep · min 8 chars)</span></label><div class="pw"><input class="inp" id="acc-new" type="password" autocomplete="new-password"><button type="button" onclick="tpw('acc-new',this)" aria-label="Show/hide">👁</button></div></div>
+        <button class="btn" onclick="saveAccount()">Update credentials</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+<div id="modal-root"></div>
+
+<script>
+/* ───────── helpers ───────── */
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function fmt(n){return '₹'+Number(n||0).toLocaleString('en-IN')}
+function dt(s){if(!s)return '—';var d=new Date(String(s).replace(' ','T')+'Z');return isNaN(d)?esc(s):d.toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}
+function d0(s){if(!s)return '—';var d=new Date(String(s).replace(' ','T')+'Z');return isNaN(d)?esc(s):d.toLocaleDateString([], {dateStyle:'medium'})}
+function toast(msg,type){var w=document.getElementById('toasts'),t=document.createElement('div');t.className='toast '+(type||'success');t.textContent=(type==='error'?'❌ ':'✅ ')+msg;w.appendChild(t);setTimeout(function(){t.remove()},3500)}
+async function api(path,method,body){
+  var opts={method:method||'GET',headers:{'X-Admin':'1'}};
+  if(body){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body)}
+  var res=await fetch('/api/admin'+path,opts),data={};
+  try{data=await res.json()}catch(e){}
+  if(res.status===401){location.href='/';throw new Error('Session expired')}
+  if(!res.ok)throw new Error(data.error||'Request failed');
+  return data;
+}
+function tpw(id,btn){var i=document.getElementById(id);var s=i.type==='password';i.type=s?'text':'password';btn.textContent=s?'🙈':'👁'}
+
+/* ───────── theme / menu / nav ───────── */
+function toggleTheme(){var d=document.documentElement.getAttribute('data-theme')==='dark';if(d)document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme','dark');try{localStorage.setItem('ff_theme',d?'light':'dark')}catch(e){}document.getElementById('theme-btn').textContent=d?'🌙':'☀️'}
+if(document.documentElement.getAttribute('data-theme')==='dark')document.getElementById('theme-btn').textContent='☀️';
+function openMenu(){document.getElementById('sidebar').classList.add('open');document.getElementById('overlay').classList.add('open');document.body.classList.add('menu-open');document.getElementById('menu-btn').setAttribute('aria-expanded','true')}
+function closeMenu(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open');document.body.classList.remove('menu-open');document.getElementById('menu-btn').setAttribute('aria-expanded','false')}
+function toggleMenu(){document.getElementById('sidebar').classList.contains('open')?closeMenu():openMenu()}
+window.addEventListener('resize',function(){if(innerWidth>900)closeMenu()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeMenu();closeModal()}});
+function show(id){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+  document.querySelectorAll('.nav').forEach(function(n){n.classList.toggle('active',n.getAttribute('data-s')===id)});
+  document.getElementById('s-'+id).classList.add('active');
+  closeMenu();scrollTo(0,0);
+  if(id==='dashboard')loadStats();else if(id==='users')loadUsers();else if(id==='website')loadSettings();
+}
+async function logout(){try{await api('/logout','POST',{})}catch(e){}location.href='/'}
+
+/* ───────── modal ───────── */
+function openModal(html,narrow){document.getElementById('modal-root').innerHTML='<div class="modal-bg" onmousedown="if(event.target===this)closeModal()"><div class="modal'+(narrow?' narrow':'')+'" role="dialog" aria-modal="true">'+html+'</div></div>';document.body.style.overflow='hidden'}
+function closeModal(){document.getElementById('modal-root').innerHTML='';document.body.style.overflow=''}
+
+/* ───────── dashboard ───────── */
+async function loadStats(){
+  try{
+    var s=await api('/stats');
+    var cards=[['Total users',s.users,s.newUsers7d+' new this week'],['Suspended',s.suspended,'accounts'],['Transactions',s.transactions,s.goals+' goals · '+s.budgets+' budgets'],['Money tracked',fmt(s.income-s.expense),fmt(s.income)+' in · '+fmt(s.expense)+' out']];
+    document.getElementById('stat-cards').innerHTML=cards.map(function(c){return '<div class="card stat"><div class="l">'+c[0]+'</div><div class="v">'+esc(c[1])+'</div><div class="s">'+esc(c[2])+'</div></div>'}).join('');
+    var map={};s.signups.forEach(function(r){map[r.d]=r.c});
+    var days=[],max=1;
+    for(var i=13;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var k=d.toISOString().slice(0,10);days.push({k:k,c:map[k]||0,l:d.getDate()});}
+    days.forEach(function(x){if(x.c>max)max=x.c});
+    document.getElementById('signup-bars').innerHTML=days.map(function(x){return '<div class="bar" title="'+x.k+': '+x.c+'">'+(x.c?x.c:'')+'<i style="height:'+Math.round(x.c/max*80)+'%"></i>'+x.l+'</div>'}).join('');
+    var st=s.settings;
+    document.getElementById('status-box').innerHTML=
+      '<div class="row" style="margin-bottom:10px"><span class="pill '+(st.maintenance?'bad':'ok')+'">'+(st.maintenance?'Maintenance ON':'Site online')+'</span><span class="pill '+(st.registrationOpen?'ok':'bad')+'">Registration '+(st.registrationOpen?'open':'closed')+'</span><span class="pill '+(st.announcement.enabled?'ok':'bad')+'">Banner '+(st.announcement.enabled?'visible':'off')+'</span></div><p class="muted small">Change these in the <b>Website</b> tab.</p>';
+  }catch(e){toast(e.message,'error')}
+}
+
+/* ───────── users ───────── */
+var UP={page:1,limit:15,total:0},searchT;
+function debounceSearch(){clearTimeout(searchT);searchT=setTimeout(function(){UP.page=1;loadUsers()},300)}
+function gotoPage(d){UP.page+=d;loadUsers()}
+async function loadUsers(){
+  try{
+    var q=encodeURIComponent(document.getElementById('user-q').value.trim());
+    var r=await api('/users?q='+q+'&page='+UP.page+'&limit='+UP.limit);
+    UP.total=r.total;
+    var body=document.getElementById('users-body');
+    body.innerHTML=r.users.length?r.users.map(function(u){return '<tr><td><b>'+esc(u.name)+'</b><div class="muted small">'+esc(u.email)+'</div></td><td>'+fmt(u.income)+'</td><td>'+u.tx_count+'</td><td>'+u.goal_count+'</td><td class="small">'+d0(u.created_at)+'</td><td class="small">'+dt(u.last_login)+'</td><td><span class="pill '+(u.disabled?'bad':'ok')+'">'+(u.disabled?'Suspended':'Active')+'</span></td><td><button class="btn sm" onclick="openUser('+u.id+')">Manage</button></td></tr>'}).join(''):'<tr><td colspan="8" class="empty">No users found</td></tr>';
+    var from=r.total?(r.page-1)*r.limit+1:0,to=Math.min(r.total,r.page*r.limit);
+    document.getElementById('users-info').textContent=from+'–'+to+' of '+r.total+' users';
+    document.getElementById('prev-btn').disabled=UP.page<=1;
+    document.getElementById('next-btn').disabled=to>=r.total;
+  }catch(e){toast(e.message,'error')}
+}
+function openAddUser(){
+  openModal('<div class="modal-h"><h2>Add user</h2><button class="x" onclick="closeModal()" aria-label="Close">✕</button></div>'+
+  '<div class="fg"><label class="f">Full name</label><input class="inp" id="nu-name"></div>'+
+  '<div class="fg"><label class="f">Email</label><input class="inp" id="nu-email" type="email" autocapitalize="none"></div>'+
+  '<div class="fg"><label class="f">Password (min 6)</label><input class="inp" id="nu-pass" type="text" autocomplete="off"></div>'+
+  '<div class="fg"><label class="f">Monthly income (₹)</label><input class="inp" id="nu-inc" type="number" min="0"></div>'+
+  '<button class="btn" onclick="addUser()">Create user</button>',true);
+}
+async function addUser(){
+  try{await api('/users','POST',{name:v('nu-name'),email:v('nu-email'),password:v('nu-pass'),income:v('nu-inc')});closeModal();toast('User created');loadUsers()}catch(e){toast(e.message,'error')}
+}
+function v(id){return document.getElementById(id).value}
+
+var CUR=null,BKEYS=[];
+async function openUser(id){
+  try{var r=await api('/users/'+id);CUR=r.user;renderUser()}catch(e){toast(e.message,'error')}
+}
+function renderUser(){
+  var u=CUR,inc=0,exp=0;
+  u.transactions.forEach(function(t){if(t.type==='income')inc+=t.amount;else exp+=t.amount});
+  BKEYS=Object.keys(u.budgets);
+  var tx=u.transactions.slice().reverse();
+  openModal(
+  '<div class="modal-h"><h2>'+esc(u.name)+'</h2><button class="x" onclick="closeModal()" aria-label="Close">✕</button></div>'+
+  '<div class="muted small" style="margin:-10px 0 16px">Joined '+dt(u.created_at)+' · Last login '+dt(u.last_login)+'</div>'+
+  '<div class="grid g2" style="margin-bottom:6px"><div class="fg"><label class="f">Name</label><input class="inp" id="eu-name" value="'+esc(u.name)+'"></div>'+
+  '<div class="fg"><label class="f">Email</label><input class="inp" id="eu-email" value="'+esc(u.email)+'" autocapitalize="none"></div>'+
+  '<div class="fg"><label class="f">Monthly income (₹)</label><input class="inp" id="eu-inc" type="number" min="0" value="'+esc(u.income)+'"></div>'+
+  '<label class="switch" style="border:0"><input type="checkbox" id="eu-dis" '+(u.disabled?'checked':'')+'><div><b>Suspend account</b><span>User will not be able to log in.</span></div></label></div>'+
+  '<div class="row"><button class="btn" onclick="saveUser()">Save changes</button><button class="btn ghost" onclick="resetPw()">Reset password</button><button class="btn danger" onclick="deleteUser()" style="margin-left:auto">Delete user</button></div>'+
+  '<hr class="sp">'+
+  '<div class="row"><div class="muted small">Income: <b class="inc">'+fmt(inc)+'</b> · Expenses: <b class="exp">'+fmt(exp)+'</b> · Balance: <b>'+fmt(inc-exp)+'</b></div></div>'+
+  '<div class="sec-h"><h3>💳 Transactions ('+tx.length+')</h3></div>'+
+  '<div class="tbl-wrap"><table style="min-width:520px"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th></th></tr></thead><tbody>'+
+  (tx.length?tx.map(function(t){return '<tr><td class="small">'+esc(t.date)+'</td><td>'+esc(t.desc)+'</td><td class="small">'+esc(t.category)+'</td><td class="'+(t.type==='income'?'inc':'exp')+'">'+(t.type==='income'?'+':'−')+fmt(t.amount)+'</td><td style="white-space:nowrap"><button class="btn ghost sm" onclick="editTx('+t.id+')">Edit</button> <button class="btn danger sm" onclick="delTx('+t.id+')">Delete</button></td></tr>'}).join(''):'<tr><td colspan="5" class="empty">No transactions</td></tr>')+
+  '</tbody></table></div>'+
+  '<div class="sec-h"><h3>🎯 Budgets ('+BKEYS.length+')</h3></div>'+
+  (BKEYS.length?BKEYS.map(function(k,i){return '<div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>'+esc(k)+' — <b>'+fmt(u.budgets[k])+'</b>/month</span><button class="btn danger sm" onclick="delBudget('+i+')">Delete</button></div>'}).join(''):'<div class="muted small">No budgets</div>')+
+  '<div class="sec-h"><h3>⭐ Goals ('+u.goals.length+')</h3></div>'+
+  (u.goals.length?u.goals.map(function(g){return '<div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>'+esc(g.name)+' — '+fmt(g.saved)+' / '+fmt(g.target)+'</span><button class="btn danger sm" onclick="delGoal('+g.id+')">Delete</button></div>'}).join(''):'<div class="muted small">No goals</div>'));
+}
+async function saveUser(){
+  try{await api('/users/'+CUR.id,'PUT',{name:v('eu-name'),email:v('eu-email'),income:v('eu-inc'),disabled:document.getElementById('eu-dis').checked});toast('User updated');await openUser(CUR.id);loadUsers()}catch(e){toast(e.message,'error')}
+}
+async function resetPw(){
+  var p=prompt('Enter a new password for '+CUR.email+' (min 6 characters):');
+  if(!p)return;
+  try{await api('/users/'+CUR.id+'/reset-password','POST',{password:p});toast('Password reset')}catch(e){toast(e.message,'error')}
+}
+async function deleteUser(){
+  if(!confirm('Permanently delete '+CUR.email+' and ALL their data? This cannot be undone.'))return;
+  try{await api('/users/'+CUR.id,'DELETE');closeModal();toast('User deleted');loadUsers()}catch(e){toast(e.message,'error')}
+}
+async function delTx(id){if(!confirm('Delete this transaction?'))return;try{await api('/transactions/'+id,'DELETE');toast('Deleted');await openUser(CUR.id);loadUsers()}catch(e){toast(e.message,'error')}}
+async function delGoal(id){if(!confirm('Delete this goal?'))return;try{await api('/goals/'+id,'DELETE');toast('Deleted');await openUser(CUR.id);loadUsers()}catch(e){toast(e.message,'error')}}
+async function delBudget(i){if(!confirm('Delete this budget?'))return;try{await api('/users/'+CUR.id+'/budgets/'+encodeURIComponent(BKEYS[i]),'DELETE');toast('Deleted');await openUser(CUR.id)}catch(e){toast(e.message,'error')}}
+function editTx(id){
+  var t=CUR.transactions.filter(function(x){return x.id===id})[0];if(!t)return;
+  openModal('<div class="modal-h"><h2>Edit transaction</h2><button class="x" onclick="renderUser()" aria-label="Back">✕</button></div>'+
+  '<div class="fg"><label class="f">Description</label><input class="inp" id="et-desc" value="'+esc(t.desc)+'"></div>'+
+  '<div class="grid g2" style="margin-bottom:0"><div class="fg"><label class="f">Amount (₹)</label><input class="inp" id="et-amt" type="number" min="0" step="any" value="'+esc(t.amount)+'"></div>'+
+  '<div class="fg"><label class="f">Date</label><input class="inp" id="et-date" type="date" value="'+esc(t.date)+'"></div>'+
+  '<div class="fg"><label class="f">Category</label><input class="inp" id="et-cat" value="'+esc(t.category)+'"></div>'+
+  '<div class="fg"><label class="f">Type</label><select class="inp" id="et-type"><option value="expense"'+(t.type==='expense'?' selected':'')+'>Expense</option><option value="income"'+(t.type==='income'?' selected':'')+'>Income</option></select></div></div>'+
+  '<div class="row"><button class="btn" onclick="saveTx('+id+')">Save</button><button class="btn ghost" onclick="renderUser()">Cancel</button></div>',true);
+}
+async function saveTx(id){
+  try{await api('/transactions/'+id,'PUT',{desc:v('et-desc'),amount:v('et-amt'),date:v('et-date'),category:v('et-cat'),type:v('et-type')});toast('Transaction updated');await openUser(CUR.id)}catch(e){toast(e.message,'error')}
+}
+
+/* ───────── website settings ───────── */
+async function loadSettings(){
+  try{
+    var s=await api('/settings');
+    document.getElementById('set-reg').checked=s.registration_open==='1';
+    document.getElementById('set-maint').checked=s.maintenance==='1';
+    document.getElementById('set-maint-msg').value=s.maintenance_message;
+    document.getElementById('set-ann-on').checked=s.announcement_enabled==='1';
+    document.getElementById('set-ann-text').value=s.announcement_text;
+    document.getElementById('set-ann-type').value=s.announcement_type;
+  }catch(e){toast(e.message,'error')}
+}
+async function saveSettings(){
+  var on=document.getElementById('set-maint').checked;
+  if(on&&!confirm('Turn ON maintenance mode? All users will be blocked from the site until you turn it off.'))return;
+  try{
+    await api('/settings','PUT',{registration_open:document.getElementById('set-reg').checked,maintenance:on,maintenance_message:v('set-maint-msg'),announcement_enabled:document.getElementById('set-ann-on').checked,announcement_text:v('set-ann-text'),announcement_type:v('set-ann-type')});
+    toast('Website settings saved');
+  }catch(e){toast(e.message,'error')}
+}
+
+/* ───────── security ───────── */
+async function saveAccount(){
+  try{
+    var r=await api('/account','PUT',{currentPassword:v('acc-cur'),newId:v('acc-id'),newPassword:v('acc-new')});
+    ['acc-cur','acc-id','acc-new'].forEach(function(i){document.getElementById(i).value=''});
+    toast('Credentials updated. Admin ID: '+r.adminId);
+  }catch(e){toast(e.message,'error')}
+}
+
+loadStats();
+</script>
+</body>
+</html>
