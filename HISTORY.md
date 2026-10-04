@@ -1,83 +1,70 @@
-1.8.1 / 2017-09-12
+0.5.2 / 2017-09-13
 ==================
 
-  * perf: replace regular expression with substring
+  * Fix regression matching multiple ETags in `If-None-Match`
+  * perf: improve `If-None-Match` token parsing
 
-1.8.0 / 2017-02-18
+0.5.1 / 2017-09-11
 ==================
 
-  * Use SHA1 instead of MD5 for ETag hashing
-    - Improves performance for larger entities
-    - Works with FIPS 140-2 OpenSSL configuration
+  * Fix handling of modified headers with invalid dates
+  * perf: improve ETag match loop
 
-1.7.0 / 2015-06-08
+0.5.0 / 2017-02-21
 ==================
 
-  * Always include entity length in ETags for hash length extensions
-  * Generate non-Stats ETags using MD5 only (no longer CRC32)
-  * Improve stat performance by removing hashing
-  * Remove base64 padding in ETags to shorten
-  * Use MD5 instead of MD4 in weak ETags over 1KB
+  * Fix incorrect result when `If-None-Match` has both `*` and ETags
+  * Fix weak `ETag` matching to match spec
+  * perf: delay reading header values until needed
+  * perf: skip checking modified time if ETag check failed
+  * perf: skip parsing `If-None-Match` when no `ETag` header
+  * perf: use `Date.parse` instead of `new Date`
 
-1.6.0 / 2015-05-10
+0.4.0 / 2017-02-05
 ==================
 
-  * Improve support for JXcore
-  * Remove requirement of `atime` in the stats object
-  * Support "fake" stats objects in environments without `fs`
+  * Fix false detection of `no-cache` request directive
+  * perf: enable strict mode
+  * perf: hoist regular expressions
+  * perf: remove duplicate conditional
+  * perf: remove unnecessary boolean coercions
 
-1.5.1 / 2014-11-19
+0.3.0 / 2015-05-12
 ==================
 
-  * deps: crc@3.2.1
-    - Minor fixes
+  * Add weak `ETag` matching support
 
-1.5.0 / 2014-10-14
+0.2.4 / 2014-09-07
 ==================
 
-  * Improve string performance
-  * Slightly improve speed for weak ETags over 1KB
-
-1.4.0 / 2014-09-21
-==================
-
-  * Support "fake" stats objects
   * Support Node.js 0.6
 
-1.3.1 / 2014-09-14
+0.2.3 / 2014-09-07
 ==================
 
-  * Use the (new and improved) `crc` for crc32
+  * Move repository to jshttp
 
-1.3.0 / 2014-08-29
+0.2.2 / 2014-02-19
 ==================
 
-  * Default strings to strong ETags
-  * Improve speed for weak ETags over 1KB
+  * Revert "Fix for blank page on Safari reload"
 
-1.2.1 / 2014-08-29
+0.2.1 / 2014-01-29
 ==================
 
-  * Use the (much faster) `buffer-crc32` for crc32
+  * Fix for blank page on Safari reload
 
-1.2.0 / 2014-08-24
+0.2.0 / 2013-08-11
 ==================
 
-  * Add support for file stat objects
+  * Return stale for `Cache-Control: no-cache`
 
-1.1.0 / 2014-08-24
+0.1.0 / 2012-06-15
 ==================
 
-  * Add fast-path for empty entity
-  * Add weak ETag generation
-  * Shrink size of generated ETags
+  * Add `If-None-Match: *` support
 
-1.0.1 / 2014-08-24
-==================
-
-  * Fix behavior of string containing Unicode
-
-1.0.0 / 2014-05-18
+0.0.1 / 2012-06-10
 ==================
 
   * Initial release

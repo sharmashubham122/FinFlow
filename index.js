@@ -1,131 +1,252 @@
-/*!
- * etag
- * Copyright(c) 2014-2016 Douglas Christopher Wilson
- * MIT Licensed
- */
+// jscs:disable requireUseStrict
 
-'use strict'
+var test = require('tape');
 
-/**
- * Module exports.
- * @public
- */
+var functionBind = require('../implementation');
+var getCurrentContext = function () { return this; };
 
-module.exports = etag
+test('functionBind is a function', function (t) {
+    t.equal(typeof functionBind, 'function');
+    t.end();
+});
 
-/**
- * Module dependencies.
- * @private
- */
+test('non-functions', function (t) {
+    var nonFunctions = [true, false, [], {}, 42, 'foo', NaN, /a/g];
+    t.plan(nonFunctions.length);
+    for (var i = 0; i < nonFunctions.length; ++i) {
+        try { functionBind.call(nonFunctions[i]); } catch (ex) {
+            t.ok(ex instanceof TypeError, 'throws when given ' + String(nonFunctions[i]));
+        }
+    }
+    t.end();
+});
 
-var crypto = require('crypto')
-var Stats = require('fs').Stats
+test('without a context', function (t) {
+    t.test('binds properly', function (st) {
+        var args, context;
+        var namespace = {
+            func: functionBind.call(function () {
+                args = Array.prototype.slice.call(arguments);
+                context = this;
+            })
+        };
+        namespace.func(1, 2, 3);
+        st.deepEqual(args, [1, 2, 3]);
+        st.equal(context, getCurrentContext.call());
+        st.end();
+    });
 
-/**
- * Module variables.
- * @private
- */
+    t.test('binds properly, and still supplies bound arguments', function (st) {
+        var args, context;
+        var namespace = {
+            func: functionBind.call(function () {
+                args = Array.prototype.slice.call(arguments);
+                context = this;
+            }, undefined, 1, 2, 3)
+        };
+        namespace.func(4, 5, 6);
+        st.deepEqual(args, [1, 2, 3, 4, 5, 6]);
+        st.equal(context, getCurrentContext.call());
+        st.end();
+    });
 
-var toString = Object.prototype.toString
+    t.test('returns properly', function (st) {
+        var args;
+        var namespace = {
+            func: functionBind.call(function () {
+                args = Array.prototype.slice.call(arguments);
+                return this;
+            }, null)
+        };
+        var context = namespace.func(1, 2, 3);
+        st.equal(context, getCurrentContext.call(), 'returned context is namespaced context');
+        st.deepEqual(args, [1, 2, 3], 'passed arguments are correct');
+        st.end();
+    });
 
-/**
- * Generate an entity tag.
- *
- * @param {Buffer|string} entity
- * @return {string}
- * @private
- */
+    t.test('returns properly with bound arguments', function (st) {
+        var args;
+        var namespace = {
+            func: functionBind.call(function () {
+                args = Array.prototype.slice.call(arguments);
+                return this;
+            }, null, 1, 2, 3)
+        };
+        var context = namespace.func(4, 5, 6);
+        st.equal(context, getCurrentContext.call(), 'returned context is namespaced context');
+        st.deepEqual(args, [1, 2, 3, 4, 5, 6], 'passed arguments are correct');
+        st.end();
+    });
 
-function entitytag (entity) {
-  if (entity.length === 0) {
-    // fast-path empty
-    return '"0-2jmj7l5rSw0yVb/vlWAYkK/YBwk"'
-  }
+    t.test('called as a constructor', function (st) {
+        var thunkify = function (value) {
+            return function () { return value; };
+        };
+        st.test('returns object value', function (sst) {
+            var expectedReturnValue = [1, 2, 3];
+            var Constructor = functionBind.call(thunkify(expectedReturnValue), null);
+            var result = new Constructor();
+            sst.equal(result, expectedReturnValue);
+            sst.end();
+        });
 
-  // compute hash of entity
-  var hash = crypto
-    .createHash('sha1')
-    .update(entity, 'utf8')
-    .digest('base64')
-    .substring(0, 27)
+        st.test('does not return primitive value', function (sst) {
+            var Constructor = functionBind.call(thunkify(42), null);
+            var result = new Constructor();
+            sst.notEqual(result, 42);
+            sst.end();
+        });
 
-  // compute length of entity
-  var len = typeof entity === 'string'
-    ? Buffer.byteLength(entity, 'utf8')
-    : entity.length
+        st.test('object from bound constructor is instance of original and bound constructor', function (sst) {
+            var A = function (x) {
+                this.name = x || 'A';
+            };
+            var B = functionBind.call(A, null, 'B');
 
-  return '"' + len.toString(16) + '-' + hash + '"'
-}
+            var result = new B();
+            sst.ok(result instanceof B, 'result is instance of bound constructor');
+            sst.ok(result instanceof A, 'result is instance of original constructor');
+            sst.end();
+        });
 
-/**
- * Create a simple ETag.
- *
- * @param {string|Buffer|Stats} entity
- * @param {object} [options]
- * @param {boolean} [options.weak]
- * @return {String}
- * @public
- */
+        st.end();
+    });
 
-function etag (entity, options) {
-  if (entity == null) {
-    throw new TypeError('argument entity is required')
-  }
+    t.end();
+});
 
-  // support fs.Stats object
-  var isStats = isstats(entity)
-  var weak = options && typeof options.weak === 'boolean'
-    ? options.weak
-    : isStats
+test('with a context', function (t) {
+    t.test('with no bound arguments', function (st) {
+        var args, context;
+        var boundContext = {};
+        var namespace = {
+            func: functionBind.call(function () {
+                args = Array.prototype.slice.call(arguments);
+                context = this;
+            }, boundContext)
+        };
+        namespace.func(1, 2, 3);
+        st.equal(context, boundContext, 'binds a context properly');
+        st.deepEqual(args, [1, 2, 3], 'supplies passed arguments');
+        st.end();
+    });
 
-  // validate argument
-  if (!isStats && typeof entity !== 'string' && !Buffer.isBuffer(entity)) {
-    throw new TypeError('argument entity must be string, Buffer, or fs.Stats')
-  }
+    t.test('with bound arguments', function (st) {
+        var args, context;
+        var boundContext = {};
+        var namespace = {
+            func: functionBind.call(function () {
+                args = Array.prototype.slice.call(arguments);
+                context = this;
+            }, boundContext, 1, 2, 3)
+        };
+        namespace.func(4, 5, 6);
+        st.equal(context, boundContext, 'binds a context properly');
+        st.deepEqual(args, [1, 2, 3, 4, 5, 6], 'supplies bound and passed arguments');
+        st.end();
+    });
 
-  // generate entity tag
-  var tag = isStats
-    ? stattag(entity)
-    : entitytag(entity)
+    t.test('returns properly', function (st) {
+        var boundContext = {};
+        var args;
+        var namespace = {
+            func: functionBind.call(function () {
+                args = Array.prototype.slice.call(arguments);
+                return this;
+            }, boundContext)
+        };
+        var context = namespace.func(1, 2, 3);
+        st.equal(context, boundContext, 'returned context is bound context');
+        st.notEqual(context, getCurrentContext.call(), 'returned context is not lexical context');
+        st.deepEqual(args, [1, 2, 3], 'passed arguments are correct');
+        st.end();
+    });
 
-  return weak
-    ? 'W/' + tag
-    : tag
-}
+    t.test('returns properly with bound arguments', function (st) {
+        var boundContext = {};
+        var args;
+        var namespace = {
+            func: functionBind.call(function () {
+                args = Array.prototype.slice.call(arguments);
+                return this;
+            }, boundContext, 1, 2, 3)
+        };
+        var context = namespace.func(4, 5, 6);
+        st.equal(context, boundContext, 'returned context is bound context');
+        st.notEqual(context, getCurrentContext.call(), 'returned context is not lexical context');
+        st.deepEqual(args, [1, 2, 3, 4, 5, 6], 'passed arguments are correct');
+        st.end();
+    });
 
-/**
- * Determine if object is a Stats object.
- *
- * @param {object} obj
- * @return {boolean}
- * @api private
- */
+    t.test('passes the correct arguments when called as a constructor', function (st) {
+        var expected = { name: 'Correct' };
+        var namespace = {
+            Func: functionBind.call(function (arg) {
+                return arg;
+            }, { name: 'Incorrect' })
+        };
+        var returned = new namespace.Func(expected);
+        st.equal(returned, expected, 'returns the right arg when called as a constructor');
+        st.end();
+    });
 
-function isstats (obj) {
-  // genuine fs.Stats
-  if (typeof Stats === 'function' && obj instanceof Stats) {
-    return true
-  }
+    t.test('has the new instance\'s context when called as a constructor', function (st) {
+        var actualContext;
+        var expectedContext = { foo: 'bar' };
+        var namespace = {
+            Func: functionBind.call(function () {
+                actualContext = this;
+            }, expectedContext)
+        };
+        var result = new namespace.Func();
+        st.equal(result instanceof namespace.Func, true);
+        st.notEqual(actualContext, expectedContext);
+        st.end();
+    });
 
-  // quack quack
-  return obj && typeof obj === 'object' &&
-    'ctime' in obj && toString.call(obj.ctime) === '[object Date]' &&
-    'mtime' in obj && toString.call(obj.mtime) === '[object Date]' &&
-    'ino' in obj && typeof obj.ino === 'number' &&
-    'size' in obj && typeof obj.size === 'number'
-}
+    t.end();
+});
 
-/**
- * Generate a tag for a stat.
- *
- * @param {object} stat
- * @return {string}
- * @private
- */
+test('bound function length', function (t) {
+    t.test('sets a correct length without thisArg', function (st) {
+        var subject = functionBind.call(function (a, b, c) { return a + b + c; });
+        st.equal(subject.length, 3);
+        st.equal(subject(1, 2, 3), 6);
+        st.end();
+    });
 
-function stattag (stat) {
-  var mtime = stat.mtime.getTime().toString(16)
-  var size = stat.size.toString(16)
+    t.test('sets a correct length with thisArg', function (st) {
+        var subject = functionBind.call(function (a, b, c) { return a + b + c; }, {});
+        st.equal(subject.length, 3);
+        st.equal(subject(1, 2, 3), 6);
+        st.end();
+    });
 
-  return '"' + size + '-' + mtime + '"'
-}
+    t.test('sets a correct length without thisArg and first argument', function (st) {
+        var subject = functionBind.call(function (a, b, c) { return a + b + c; }, undefined, 1);
+        st.equal(subject.length, 2);
+        st.equal(subject(2, 3), 6);
+        st.end();
+    });
+
+    t.test('sets a correct length with thisArg and first argument', function (st) {
+        var subject = functionBind.call(function (a, b, c) { return a + b + c; }, {}, 1);
+        st.equal(subject.length, 2);
+        st.equal(subject(2, 3), 6);
+        st.end();
+    });
+
+    t.test('sets a correct length without thisArg and too many arguments', function (st) {
+        var subject = functionBind.call(function (a, b, c) { return a + b + c; }, undefined, 1, 2, 3, 4);
+        st.equal(subject.length, 0);
+        st.equal(subject(), 6);
+        st.end();
+    });
+
+    t.test('sets a correct length with thisArg and too many arguments', function (st) {
+        var subject = functionBind.call(function (a, b, c) { return a + b + c; }, {}, 1, 2, 3, 4);
+        st.equal(subject.length, 0);
+        st.equal(subject(), 6);
+        st.end();
+    });
+});
