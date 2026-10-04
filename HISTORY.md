@@ -1,108 +1,56 @@
-0.6.3 / 2022-01-22
+1.2.1 / 2019-05-10
 ==================
 
-  * Revert "Lazy-load modules from main entry point"
+  * Improve error when `str` is not a string
 
-0.6.2 / 2019-04-29
+1.2.0 / 2016-06-01
 ==================
 
-  * Fix sorting charset, encoding, and language with extra parameters
+  * Add `combine` option to combine overlapping ranges
 
-0.6.1 / 2016-05-02
+1.1.0 / 2016-05-13
 ==================
 
-  * perf: improve `Accept` parsing speed
-  * perf: improve `Accept-Charset` parsing speed
-  * perf: improve `Accept-Encoding` parsing speed
-  * perf: improve `Accept-Language` parsing speed
+  * Fix incorrectly returning -1 when there is at least one valid range
+  * perf: remove internal function
 
-0.6.0 / 2015-09-29
+1.0.3 / 2015-10-29
 ==================
 
-  * Fix including type extensions in parameters in `Accept` parsing
-  * Fix parsing `Accept` parameters with quoted equals
-  * Fix parsing `Accept` parameters with quoted semicolons
-  * Lazy-load modules from main entry point
-  * perf: delay type concatenation until needed
   * perf: enable strict mode
-  * perf: hoist regular expressions
-  * perf: remove closures getting spec properties
-  * perf: remove a closure from media type parsing
-  * perf: remove property delete from media type parsing
 
-0.5.3 / 2015-05-10
+1.0.2 / 2014-09-08
 ==================
 
-  * Fix media type parameter matching to be case-insensitive
-
-0.5.2 / 2015-05-06
-==================
-
-  * Fix comparing media types with quoted values
-  * Fix splitting media types with quoted commas
-
-0.5.1 / 2015-02-14
-==================
-
-  * Fix preference sorting to be stable for long acceptable lists
-
-0.5.0 / 2014-12-18
-==================
-
-  * Fix list return order when large accepted list
-  * Fix missing identity encoding when q=0 exists
-  * Remove dynamic building of Negotiator class
-
-0.4.9 / 2014-10-14
-==================
-
-  * Fix error when media type has invalid parameter
-
-0.4.8 / 2014-09-28
-==================
-
-  * Fix all negotiations to be case-insensitive
-  * Stable sort preferences of same quality according to client order
   * Support Node.js 0.6
 
-0.4.7 / 2014-06-24
+1.0.1 / 2014-09-07
 ==================
 
-  * Handle invalid provided languages
-  * Handle invalid provided media types
+  * Move repository to jshttp
 
-0.4.6 / 2014-06-11
+1.0.0 / 2013-12-11
 ==================
 
-  *  Order by specificity when quality is the same
+  * Add repository to package.json
+  * Add MIT license
 
-0.4.5 / 2014-05-29
+0.0.4 / 2012-06-17
 ==================
 
-  * Fix regression in empty header handling
+  * Change ret -1 for unsatisfiable and -2 when invalid
 
-0.4.4 / 2014-05-29
+0.0.3 / 2012-06-17
 ==================
 
-  * Fix behaviors when headers are not present
+  * Fix last-byte-pos default to len - 1
 
-0.4.3 / 2014-04-16
+0.0.2 / 2012-06-14
 ==================
 
-  * Handle slashes on media params correctly
+  * Add `.type`
 
-0.4.2 / 2014-02-28
+0.0.1 / 2012-06-11
 ==================
 
-  * Fix media type sorting
-  * Handle media types params strictly
-
-0.4.1 / 2014-01-16
-==================
-
-  * Use most specific matches
-
-0.4.0 / 2014-01-09
-==================
-
-  * Remove preferred prefix from methods
+  * Initial release
