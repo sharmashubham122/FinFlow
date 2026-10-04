@@ -1,50 +1,62 @@
-# buffer-equal-constant-time
+# call-bind-apply-helpers <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
 
-Constant-time `Buffer` comparison for node.js.  Should work with browserify too.
+[![github actions][actions-image]][actions-url]
+[![coverage][codecov-image]][codecov-url]
+[![dependency status][deps-svg]][deps-url]
+[![dev dependency status][dev-deps-svg]][dev-deps-url]
+[![License][license-image]][license-url]
+[![Downloads][downloads-image]][downloads-url]
 
-[![Build Status](https://travis-ci.org/goinstant/buffer-equal-constant-time.png?branch=master)](https://travis-ci.org/goinstant/buffer-equal-constant-time)
+[![npm badge][npm-badge-png]][package-url]
+
+Helper functions around Function call/apply/bind, for use in `call-bind`.
+
+The only packages that should likely ever use this package directly are `call-bind` and `get-intrinsic`.
+Please use `call-bind` unless you have a very good reason not to.
+
+## Getting started
 
 ```sh
-  npm install buffer-equal-constant-time
+npm install --save call-bind-apply-helpers
 ```
 
-# Usage
+## Usage/Examples
 
 ```js
-  var bufferEq = require('buffer-equal-constant-time');
+const assert = require('assert');
+const callBindBasic = require('call-bind-apply-helpers');
 
-  var a = new Buffer('asdf');
-  var b = new Buffer('asdf');
-  if (bufferEq(a,b)) {
-    // the same!
-  } else {
-    // different in at least one byte!
-  }
+function f(a, b) {
+	assert.equal(this, 1);
+	assert.equal(a, 2);
+	assert.equal(b, 3);
+	assert.equal(arguments.length, 2);
+}
+
+const fBound = callBindBasic([f, 1]);
+
+delete Function.prototype.call;
+delete Function.prototype.bind;
+
+fBound(2, 3);
 ```
 
-If you'd like to install an `.equal()` method onto the node.js `Buffer` and
-`SlowBuffer` prototypes:
+## Tests
 
-```js
-  require('buffer-equal-constant-time').install();
+Clone the repo, `npm install`, and run `npm test`
 
-  var a = new Buffer('asdf');
-  var b = new Buffer('asdf');
-  if (a.equal(b)) {
-    // the same!
-  } else {
-    // different in at least one byte!
-  }
-```
-
-To get rid of the installed `.equal()` method, call `.restore()`:
-
-```js
-  require('buffer-equal-constant-time').restore();
-```
-
-# Legal
-
-&copy; 2013 GoInstant Inc., a salesforce.com company
-
-Licensed under the BSD 3-clause license.
+[package-url]: https://npmjs.org/package/call-bind-apply-helpers
+[npm-version-svg]: https://versionbadg.es/ljharb/call-bind-apply-helpers.svg
+[deps-svg]: https://david-dm.org/ljharb/call-bind-apply-helpers.svg
+[deps-url]: https://david-dm.org/ljharb/call-bind-apply-helpers
+[dev-deps-svg]: https://david-dm.org/ljharb/call-bind-apply-helpers/dev-status.svg
+[dev-deps-url]: https://david-dm.org/ljharb/call-bind-apply-helpers#info=devDependencies
+[npm-badge-png]: https://nodei.co/npm/call-bind-apply-helpers.png?downloads=true&stars=true
+[license-image]: https://img.shields.io/npm/l/call-bind-apply-helpers.svg
+[license-url]: LICENSE
+[downloads-image]: https://img.shields.io/npm/dm/call-bind-apply-helpers.svg
+[downloads-url]: https://npm-stat.com/charts.html?package=call-bind-apply-helpers
+[codecov-image]: https://codecov.io/gh/ljharb/call-bind-apply-helpers/branch/main/graphs/badge.svg
+[codecov-url]: https://app.codecov.io/gh/ljharb/call-bind-apply-helpers/
+[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/call-bind-apply-helpers
+[actions-url]: https://github.com/ljharb/call-bind-apply-helpers/actions
