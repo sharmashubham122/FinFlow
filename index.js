@@ -1,77 +1,56 @@
-/*!
- * depd
- * Copyright(c) 2015 Douglas Christopher Wilson
- * MIT Licensed
- */
+'use strict';
 
-'use strict'
+var $defineProperty = require('../');
 
-/**
- * Module exports.
- * @public
- */
+var test = require('tape');
+var gOPD = require('gopd');
 
-module.exports = depd
+test('defineProperty: supported', { skip: !$defineProperty }, function (t) {
+	t.plan(4);
 
-/**
- * Create deprecate for namespace in caller.
- */
+	t.equal(typeof $defineProperty, 'function', 'defineProperty is supported');
+	if ($defineProperty && gOPD) { // this `if` check is just to shut TS up
+		/** @type {{ a: number, b?: number, c?: number }} */
+		var o = { a: 1 };
 
-function depd (namespace) {
-  if (!namespace) {
-    throw new TypeError('argument namespace is required')
-  }
+		$defineProperty(o, 'b', { enumerable: true, value: 2 });
+		t.deepEqual(
+			gOPD(o, 'b'),
+			{
+				configurable: false,
+				enumerable: true,
+				value: 2,
+				writable: false
+			},
+			'property descriptor is as expected'
+		);
 
-  function deprecate (message) {
-    // no-op in browser
-  }
+		$defineProperty(o, 'c', { enumerable: false, value: 3, writable: true });
+		t.deepEqual(
+			gOPD(o, 'c'),
+			{
+				configurable: false,
+				enumerable: false,
+				value: 3,
+				writable: true
+			},
+			'property descriptor is as expected'
+		);
+	}
 
-  deprecate._file = undefined
-  deprecate._ignored = true
-  deprecate._namespace = namespace
-  deprecate._traced = false
-  deprecate._warned = Object.create(null)
+	t.equal($defineProperty, Object.defineProperty, 'defineProperty is Object.defineProperty');
 
-  deprecate.function = wrapfunction
-  deprecate.property = wrapproperty
+	t.end();
+});
 
-  return deprecate
-}
+test('defineProperty: not supported', { skip: !!$defineProperty }, function (t) {
+	t.notOk($defineProperty, 'defineProperty is not supported');
 
-/**
- * Return a wrapped function in a deprecation message.
- *
- * This is a no-op version of the wrapper, which does nothing but call
- * validation.
- */
+	t.match(
+		typeof $defineProperty,
+		/^(?:undefined|boolean)$/,
+		'`typeof defineProperty` is `undefined` or `boolean`'
+	);
 
-function wrapfunction (fn, message) {
-  if (typeof fn !== 'function') {
-    throw new TypeError('argument fn must be a function')
-  }
-
-  return fn
-}
-
-/**
- * Wrap property in a deprecation message.
- *
- * This is a no-op version of the wrapper, which does nothing but call
- * validation.
- */
-
-function wrapproperty (obj, prop, message) {
-  if (!obj || (typeof obj !== 'object' && typeof obj !== 'function')) {
-    throw new TypeError('argument obj must be object')
-  }
-
-  var descriptor = Object.getOwnPropertyDescriptor(obj, prop)
-
-  if (!descriptor) {
-    throw new TypeError('must call property on owner object')
-  }
-
-  if (!descriptor.configurable) {
-    throw new TypeError('property must be configurable')
-  }
-}
+	t.end();
+});
