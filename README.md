@@ -1,43 +1,50 @@
-# Array Flatten
+# buffer-equal-constant-time
 
-[![NPM version][npm-image]][npm-url]
-[![NPM downloads][downloads-image]][downloads-url]
-[![Build status][travis-image]][travis-url]
-[![Test coverage][coveralls-image]][coveralls-url]
+Constant-time `Buffer` comparison for node.js.  Should work with browserify too.
 
-> Flatten an array of nested arrays into a single flat array. Accepts an optional depth.
+[![Build Status](https://travis-ci.org/goinstant/buffer-equal-constant-time.png?branch=master)](https://travis-ci.org/goinstant/buffer-equal-constant-time)
 
-## Installation
-
-```
-npm install array-flatten --save
+```sh
+  npm install buffer-equal-constant-time
 ```
 
-## Usage
+# Usage
 
-```javascript
-var flatten = require('array-flatten')
+```js
+  var bufferEq = require('buffer-equal-constant-time');
 
-flatten([1, [2, [3, [4, [5], 6], 7], 8], 9])
-//=> [1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-flatten([1, [2, [3, [4, [5], 6], 7], 8], 9], 2)
-//=> [1, 2, 3, [4, [5], 6], 7, 8, 9]
-
-(function () {
-  flatten(arguments) //=> [1, 2, 3]
-})(1, [2, 3])
+  var a = new Buffer('asdf');
+  var b = new Buffer('asdf');
+  if (bufferEq(a,b)) {
+    // the same!
+  } else {
+    // different in at least one byte!
+  }
 ```
 
-## License
+If you'd like to install an `.equal()` method onto the node.js `Buffer` and
+`SlowBuffer` prototypes:
 
-MIT
+```js
+  require('buffer-equal-constant-time').install();
 
-[npm-image]: https://img.shields.io/npm/v/array-flatten.svg?style=flat
-[npm-url]: https://npmjs.org/package/array-flatten
-[downloads-image]: https://img.shields.io/npm/dm/array-flatten.svg?style=flat
-[downloads-url]: https://npmjs.org/package/array-flatten
-[travis-image]: https://img.shields.io/travis/blakeembrey/array-flatten.svg?style=flat
-[travis-url]: https://travis-ci.org/blakeembrey/array-flatten
-[coveralls-image]: https://img.shields.io/coveralls/blakeembrey/array-flatten.svg?style=flat
-[coveralls-url]: https://coveralls.io/r/blakeembrey/array-flatten?branch=master
+  var a = new Buffer('asdf');
+  var b = new Buffer('asdf');
+  if (a.equal(b)) {
+    // the same!
+  } else {
+    // different in at least one byte!
+  }
+```
+
+To get rid of the installed `.equal()` method, call `.restore()`:
+
+```js
+  require('buffer-equal-constant-time').restore();
+```
+
+# Legal
+
+&copy; 2013 GoInstant Inc., a salesforce.com company
+
+Licensed under the BSD 3-clause license.
