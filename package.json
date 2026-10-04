@@ -1,34 +1,17 @@
 {
-  "name": "jws",
-  "version": "4.0.1",
-  "description": "Implementation of JSON Web Signatures",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "test": "make test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/brianloveswords/node-jws.git"
-  },
-  "keywords": [
-    "jws",
-    "json",
-    "web",
-    "signatures"
-  ],
-  "author": "Brian J Brennan",
+  "name": "lodash.includes",
+  "version": "4.3.0",
+  "description": "The lodash method `_.includes` exported as a module.",
+  "homepage": "https://lodash.com/",
+  "icon": "https://lodash.com/icon.svg",
   "license": "MIT",
-  "readmeFilename": "readme.md",
-  "gitHead": "c0f6b27bcea5a2ad2e304d91c2e842e4076a6b03",
-  "dependencies": {
-    "jwa": "^2.0.1",
-    "safe-buffer": "^5.0.1"
-  },
-  "devDependencies": {
-    "semver": "^5.1.0",
-    "tape": "~2.14.0"
-  }
+  "keywords": "lodash-modularized, includes",
+  "author": "John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)",
+  "contributors": [
+    "John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)",
+    "Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)",
+    "Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)"
+  ],
+  "repository": "lodash/lodash",
+  "scripts": { "test": "echo \"See https://travis-ci.org/lodash/lodash-cli for testing details.\"" }
 }
